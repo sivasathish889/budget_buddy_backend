@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'budget_buddy_app.middleware.JWTAuthenticationMiddleware'
 ]
 
 ROOT_URLCONF = 'budget_buddy_backend.urls'

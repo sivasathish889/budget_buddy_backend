@@ -4,7 +4,8 @@ from .models import Users
 from .serializer import *
 from rest_framework.serializers import ValidationError
 from rest_framework import status
-from .helpers.bcrypt import hash_password,check_password
+from .utils.bcrypt import hash_password,check_password
+from .utils.jwt import encode_jwt
 @api_view(["GET"])
 def home(request):
     return Response({"age" : "hello world"})
@@ -17,13 +18,14 @@ def register(request):
         email = request.data["email"]
         phone = request.data["phone"]
         DOB = request.data["DOB"]
+        password = request.data['password']
+        hashed_password = hash_password(password)
         if name == "" or email == "" or phone == "" or DOB == "":
             return Response({"message":"All fields are required", "success" : False},status=status.HTTP_400_BAD_REQUEST)
         if Users.objects.filter(email=email).exists():
             return Response({"message":"Email already exists", "success" : False},status=status.HTTP_400_BAD_REQUEST)
-        hashing_password = hash_password(request.data["password"])
         user = UserSerializer(data={"name":name,"email":email,"phone":phone,"DOB":
-                                    DOB, "password":hashing_password})
+                                    DOB, 'password' : hashed_password})
         if user.is_valid():
             user.save()
             return Response({"message":"User Created Successfully", "success":True},status=status.HTTP_200_OK)
@@ -52,14 +54,16 @@ def get_user(_,pk):
 def login(request):
     email = request.GET.get("email")
     password = request.GET.get("password")
+    print(request.current_user)
     try:
         if not Users.objects.filter(email=email).exists():
             return Response({"message":"User Not Found", "success" : False},status=status.HTTP_401_UNAUTHORIZED)
         user = Users.objects.get(email=email)
         if not check_password(password,user.password):
             return Response({"message":"Invalid Password", "success" : False},status=status.HTTP_400_BAD_REQUEST)
-        user = UserSerializer(user)
-        return Response({"message":"Login Successfully", "success" : True},status=status.HTTP_200_OK)
+        user = UserSerializer(user).data
+        jwt_token = encode_jwt(user)
+        return Response({"message":"Login Successfully", "Token": jwt_token, "success" : True},status=status.HTTP_200_OK)
     except Exception as e:
         print(e)
         return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
