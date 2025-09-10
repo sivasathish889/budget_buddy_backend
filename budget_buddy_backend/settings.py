@@ -50,7 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'budget_buddy_app.middleware.JWTAuthenticationMiddleware'
+    # 'budget_buddy_app.middleware.JWTAuthenticationMiddleware'
 ]
 
 ROOT_URLCONF = 'budget_buddy_backend.urls'
@@ -129,3 +129,13 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+DATE_INPUT_FORMATS = ["YYYY-MM-DD"]
+USE_L10N = False
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com' 
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'rdxsathish96@gmail.com' 
+EMAIL_HOST_PASSWORD = 'ixzk fgpj vzpl avjz'  
