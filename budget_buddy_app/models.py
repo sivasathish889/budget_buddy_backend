@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import date
+from django.utils.timezone import now as today_date
 # Create your models here.
 class Users(models.Model):
     name = models.CharField(max_length=30, )
@@ -21,7 +22,17 @@ class Users(models.Model):
     class Meta:
         db_table = "Users"
     
-    
+
+class Social(models.Model):
+    name = models.CharField(max_length=30)
+    email = models.EmailField(unique=True)
+    phone = models.BigIntegerField(verbose_name="Phone Number", null=True,)
+    clerk_id = models.BigIntegerField(verbose_name="Clerk ID", null=True,)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
     
 
 class Catagory(models.Model):
@@ -29,7 +40,7 @@ class Catagory(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     class Meta:
         db_table = "Catagory"
 
@@ -38,7 +49,7 @@ class Expense(models.Model):
     amount = models.FloatField()
     description = models.CharField(max_length=100)
     category = models.ForeignKey(Catagory, on_delete=models.CASCADE, null=True)
-    date = models.DateField(default=date.today)
+    date = models.DateTimeField(default=today_date)
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
 
     def __str__(self):

@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import Users
+from .models import *
 from .serializer import *
 from rest_framework import status
 from .utils.bcrypt import hash_password,check_password
@@ -8,6 +8,7 @@ from .utils.jwt import encode_jwt
 import datetime
 from django.core.mail import send_mail
 import math
+
 import random
 @api_view(["GET"])
 def home(request):
@@ -68,7 +69,11 @@ def login(request):
     except Exception as e:
         print(e)
         return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
-    
+
+@api_view(["GET"])
+def social_login(request):
+    print(request)
+    return Response({"message":"Login Successfully", "success" : True},status=status.HTTP_200_OK)  
 
 @api_view(["GET"])
 def forget_password(request, email):
@@ -92,7 +97,6 @@ def forget_password(request, email):
 def reset_password(request):
     password = request.data["newPassword"]
     email = request.data["email"]
-    print(password, email)
     try:
         if not Users.objects.filter(email=email).exists():
             return Response({"message":"Email Not Found", "success" : False},status=status.HTTP_401_UNAUTHORIZED)
@@ -101,6 +105,64 @@ def reset_password(request):
         user.password = hashed_password
         user.save()
         return Response({"message":"Password Reset Successfully", "success" : True},status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(["POST"])
+def add_expense(request):
+    category = request.data['category']
+    amount = request.data['amount']
+    memo = request.data['memo']
+    user_id = request.current_user.get('id')
+    try:
+        if(category=="" or amount=="" or memo==""):
+            return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
+        expense = ExpenseSerialzier(data={"amount":amount, "description" : memo, "category" : int(category), "user" : int(user_id) })
+        if not expense.is_valid():
+            print(expense.errors)
+            return Response({"message" : dict(expense.errors), "success" : False}, status=status.HTTP_400_BAD_REQUEST)
+        expense.save()
+        return Response({"message" : "Added SuccessFully", "success" : True}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    
+@api_view(["GET"])
+def get_category(request):
+    try:
+        category = Catagory.objects.all()
+        categoryList = CategorySerializer(category, many=True).data
+        return Response({"message"  : "Fetched SuccessFully", "data" : (categoryList), "success" : True}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(["GET"])
+def get_recentUse_byId(request):
+    if request.current_user is None:
+        return Response({"message":"User Not Found", "success" : False},status=status.HTTP_401_UNAUTHORIZED)
+    user_id = request.current_user.get('id')
+    try:
+        expense = Expense.objects.filter(user=user_id).order_by('-date')
+        expenseList = ExpenseSerialzier(expense, many=True).data
+        return Response({"message"  : "Fetched SuccessFully", "data" : (expenseList), "success" : True}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(["GET"])
+def get_all_expense(request):
+    if request.current_user is None:
+        return Response({"message":"User Not Found", "success" : False},status=status.HTTP_401_UNAUTHORIZED)
+    user_id = request.current_user.get('id')
+    try:
+        expense = Expense.objects.filter(user=user_id)
+        expenseList = ExpenseSerialzier(expense, many=True).data
+        return Response({"message"  : "Fetched SuccessFully", "data" : (expenseList), "success" : True}, status=status.HTTP_200_OK)
     except Exception as e:
         print(e)
         return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
