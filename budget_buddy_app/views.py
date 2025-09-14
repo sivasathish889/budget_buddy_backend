@@ -1,4 +1,5 @@
 from rest_framework.response import Response
+from django.db.models import Sum,Max
 from rest_framework.decorators import api_view
 from .models import *
 from .serializer import *
@@ -119,9 +120,8 @@ def add_expense(request):
     try:
         if(category=="" or amount=="" or memo==""):
             return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
-        expense = ExpenseSerialzier(data={"amount":amount, "description" : memo, "category" : int(category), "user" : int(user_id) })
+        expense = ExpenseSerialzier(data={"amount": amount, "description": memo, "category_id": int(category), "user": int(user_id)})
         if not expense.is_valid():
-            print(expense.errors)
             return Response({"message" : dict(expense.errors), "success" : False}, status=status.HTTP_400_BAD_REQUEST)
         expense.save()
         return Response({"message" : "Added SuccessFully", "success" : True}, status=status.HTTP_200_OK)
@@ -154,15 +154,19 @@ def get_recentUse_byId(request):
         print(e)
         return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
     
+    
 @api_view(["GET"])
-def get_all_expense(request):
+def get_expense_by_category(request):
     if request.current_user is None:
-        return Response({"message":"User Not Found", "success" : False},status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"message": "User Not Found", "success": False}, status=status.HTTP_401_UNAUTHORIZED)
     user_id = request.current_user.get('id')
     try:
-        expense = Expense.objects.filter(user=user_id)
-        expenseList = ExpenseSerialzier(expense, many=True).data
-        return Response({"message"  : "Fetched SuccessFully", "data" : (expenseList), "success" : True}, status=status.HTTP_200_OK)
+        data = Expense.objects.values('category__id', 'category__name').annotate(total_amount=Sum('amount'),latest_expense_id=Max('id'),
+        latest_expense_date=Max('date'),).order_by('-total_amount').filter(user=user_id)
+        serializer = ExpenseCategorySummarySerializer(data, many=True)
+        return Response({"message": "Fetched Successfully", "data": serializer.data, "success": True}, status=status.HTTP_200_OK)
     except Exception as e:
         print(e)
-        return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Something went wrong", "success": False}, status=status.HTTP_400_BAD_REQUEST)
+
+    
