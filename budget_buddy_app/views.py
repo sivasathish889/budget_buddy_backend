@@ -162,7 +162,7 @@ def get_expense_by_category(request):
     user_id = request.current_user.get('id')
     try:
         data = Expense.objects.values('category__id', 'category__name').annotate(total_amount=Sum('amount'),latest_expense_id=Max('id'),
-        latest_expense_date=Max('date'),).order_by('-total_amount').filter(user=user_id)
+        latest_expense_date=Max('date'),).order_by('-total_amount').filter(user=user_id).filter()
         serializer = ExpenseCategorySummarySerializer(data, many=True)
         return Response({"message": "Fetched Successfully", "data": serializer.data, "success": True}, status=status.HTTP_200_OK)
     except Exception as e:

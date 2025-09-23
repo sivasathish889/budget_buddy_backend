@@ -11,4 +11,5 @@ urlpatterns = [
     path('get_category', get_category, name="get categorys"),
     path("get_recentUse_byId", get_recentUse_byId, name="get recent use by id"),
     path("get_expense_by_category", get_expense_by_category, name="get all expense"),
+    # path('get_monthly')
 ]
