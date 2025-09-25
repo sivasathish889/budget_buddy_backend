@@ -9,7 +9,7 @@ from .utils.jwt import encode_jwt
 import datetime
 from django.core.mail import send_mail
 import math
-
+from django.conf import settings
 import random
 @api_view(["GET"])
 def home(request):
@@ -169,4 +169,94 @@ def get_expense_by_category(request):
         print(e)
         return Response({"message": "Something went wrong", "success": False}, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(["PUT"])
+def update_profile(request):
+    print(request.current_user)
+    if request.current_user is None:
+        return Response({"message": "User Not Found", "success": False}, status=status.HTTP_401_UNAUTHORIZED)
+    user_id = request.current_user.get('id')
+    try:
+        user = Users.objects.get(id=user_id)
+        name = request.data.get('name', user.name)
+        phone = request.data.get('phone', user.phone)
+        email = request.data.get('email', user.email)
+        user.name = name
+        user.phone = phone
+        user.email = email
+        user.save()
+        return Response({"message": "Profile Updated Successfully", "success": True}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({"message": "Something went wrong", "success": False}, status=status.HTTP_400_BAD_REQUEST)
     
+@api_view(["PUT"])
+def change_password(request):
+    if request.current_user is None:
+        return Response({"message": "User Not Found", "success": False}, status=status.HTTP_401_UNAUTHORIZED)
+    user_id = request.current_user.get('id')
+    try:
+        user = Users.objects.get(id=user_id)
+        currentPassword = request.data.get('currentPassword')
+        new_password = request.data.get('newPassword')
+        if not check_password(currentPassword, user.password):
+            return Response({"message": "Invalid Old Password", "success": False}, status=status.HTTP_400_BAD_REQUEST)
+        hashed_password = hash_password(new_password)
+        user.password = hashed_password
+        user.save()
+        return Response({"message": "Password Changed Successfully", "success": True}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({"message": "Something went wrong", "success": False}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(["POST"])
+def send_otp(request):
+    email = request.GET.get('email')
+    if not Users.objects.filter(email=email).exists():
+        print("hrer")
+        return Response({"message": "Email Not Found", "success": False}, status=status.HTTP_401_UNAUTHORIZED)
+    otp = math.floor(random.randint(1000, 9999))
+    try:
+        send_mail(
+            subject='OTP Verification',
+            message=f"Your OTP is {otp}",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            fail_silently=False,
+        )
+        return Response({"message": "OTP Sent Successfully", "success": True, "otp": str(otp)}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({"message": "Something went wrong", "success": False}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(["GET"])
+def verifyPassword(request,password):
+    if request.current_user is None:
+        return Response({"message": "User Not Found", "success": False}, status=status.HTTP_401_UNAUTHORIZED)
+    user_id = request.current_user.get('id')
+    try:
+        if not Users.objects.filter(id = user_id).exists():
+            return Response({"message":"User Not Found", "success" : False},status=status.HTTP_401_UNAUTHORIZED)
+        user = Users.objects.get(id = user_id)
+        if not check_password(password,user.password):
+            return Response({"message":"Invalid Password", "success" : False},status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message":"Password Verified Successfully", "success" : True},status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
+    
+    
+@api_view(["DELETE"])
+def delete_account(request):
+    if request.current_user is None:
+        return Response({"message": "User Not Found", "success": False}, status=status.HTTP_401_UNAUTHORIZED)
+    user_id = request.current_user.get('id')
+    try:
+        if not Users.objects.filter(id = user_id).exists():
+            return Response({"message":"User Not Found", "success" : False},status=status.HTTP_401_UNAUTHORIZED)
+        user = Users.objects.get(id = user_id)
+        user.delete()
+        return Response({"message":"Account Deleted Successfully", "success" : True},status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)

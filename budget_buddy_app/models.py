@@ -1,6 +1,7 @@
 from django.db import models
 from datetime import date
 from django.utils.timezone import now as today_date
+
 # Create your models here.
 class Users(models.Model):
     name = models.CharField(max_length=30, )
@@ -37,7 +38,6 @@ class Social(models.Model):
 
 class Catagory(models.Model):
     name = models.CharField(max_length=20)
-
     def __str__(self):
         return self.name
 

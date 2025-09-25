@@ -11,5 +11,8 @@ urlpatterns = [
     path('get_category', get_category, name="get categorys"),
     path("get_recentUse_byId", get_recentUse_byId, name="get recent use by id"),
     path("get_expense_by_category", get_expense_by_category, name="get all expense"),
-    # path('get_monthly')
+    path("update-profile", update_profile, name="edit profile"),
+    path("change_password", change_password, name="change password"),
+    path("user/send-otp", send_otp, name="send otp"),
+    path("verifyPassword/<str:password>", verifyPassword, name="verify password")
 ]
