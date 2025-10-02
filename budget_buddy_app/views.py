@@ -148,7 +148,7 @@ def get_category(request):
 @api_view(["GET"])
 def get_recentUse_byId(request):
     if request.current_user is None:
-        return Response({"message":"User Not Found", "success" : False},status=status.HTTP_401_UNAUTHORIZED)
+        return Response({ "success" : False},status=status.HTTP_200_OK)
     user_id = request.current_user.get('id')
     try:
         today = datetime.datetime.now()
