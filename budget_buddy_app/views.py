@@ -136,7 +136,7 @@ def add_expense(request):
     
     
 @api_view(["GET"])
-def get_category():
+def get_category(request):
     try:
         category = Catagory.objects.all()
         categoryList = CategorySerializer(category, many=True).data
