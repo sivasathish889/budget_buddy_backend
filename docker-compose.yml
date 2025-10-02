@@ -1,0 +1,10 @@
+
+services:
+  web:
+    build: ./
+    container_name: budget_buddy_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - /app/budget_buddy_backend/certs:/ca.pem
+    env_file: .env
