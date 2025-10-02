@@ -11,6 +11,7 @@ from django.core.mail import send_mail
 import math
 from django.conf import settings
 import random
+import datetime
 @api_view(["GET"])
 def home(request):
     return Response({"age" : "hello world"})
@@ -25,7 +26,7 @@ def register(request):
         DOB = request.data["DOB"]
         password = request.data['password']
         hashed_password = hash_password(password)
-        format_date = datetime.datetime.strptime(DOB, '%d/%m/%Y').date()
+        format_date = datetime.datetime.strptime(DOB, '%m/%d/%Y').date()
         if name == "" or email == "" or phone == "" or DOB == "":
             return Response({"message":"All fields are required", "success" : False},status=status.HTTP_400_BAD_REQUEST)
         if Users.objects.filter(email=email).exists():
@@ -41,16 +42,19 @@ def register(request):
     
 
 @api_view(["GET"])
-def get_user(_,pk):
+def get_user(request):
+    if request.current_user is None:
+        return Response({"message":"User Not Found", "success" : False},status=status.HTTP_401_UNAUTHORIZED)
+    user_id = request.current_user.get('id')
     try:
-        if not Users.objects.filter(id=pk).exists():
-            return Response({"message":"User Not Found", "success" : False},status=400)
-        user = Users.objects.get(id=pk)
+        if not Users.objects.filter(id=user_id).exists():
+            return Response({"message":"User Not Found", "success" : False},status=status.HTTP_400_BAD_REQUEST)
+        user = Users.objects.get(id=user_id)
         user = UserSerializer(user)
-        return Response(user.data,status=200)
+        return Response({"message":"User Fetched Successfully", "data": user.data, "success" : True},status=status.HTTP_200_OK)
     except Exception as e:
         print(e)
-        return Response({"message":"Something went wrong", "success" : False},status=400)
+        return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
     
 
 
@@ -132,7 +136,7 @@ def add_expense(request):
     
     
 @api_view(["GET"])
-def get_category(request):
+def get_category():
     try:
         category = Catagory.objects.all()
         categoryList = CategorySerializer(category, many=True).data
@@ -147,32 +151,19 @@ def get_recentUse_byId(request):
         return Response({"message":"User Not Found", "success" : False},status=status.HTTP_401_UNAUTHORIZED)
     user_id = request.current_user.get('id')
     try:
-        expense = Expense.objects.filter(user=user_id).order_by('-date')
+        today = datetime.datetime.now()
+        two_months_ago = today - datetime.timedelta(days=60)
+        expense = Expense.objects.filter(user=user_id, date__gte=two_months_ago.astimezone(),
+            date__lte=today.astimezone()).order_by('-date')
         expenseList = ExpenseSerialzier(expense, many=True).data
         return Response({"message"  : "Fetched SuccessFully", "data" : (expenseList), "success" : True}, status=status.HTTP_200_OK)
     except Exception as e:
         print(e)
         return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
     
-    
-@api_view(["GET"])
-def get_expense_by_category(request):
-    if request.current_user is None:
-        return Response({"message": "User Not Found", "success": False}, status=status.HTTP_401_UNAUTHORIZED)
-    user_id = request.current_user.get('id')
-    try:
-        data = Expense.objects.values('category__id', 'category__name').annotate(total_amount=Sum('amount'),latest_expense_id=Max('id'),
-        latest_expense_date=Max('date'),).order_by('-total_amount').filter(user=user_id).filter()
-        serializer = ExpenseCategorySummarySerializer(data, many=True)
-        return Response({"message": "Fetched Successfully", "data": serializer.data, "success": True}, status=status.HTTP_200_OK)
-    except Exception as e:
-        print(e)
-        return Response({"message": "Something went wrong", "success": False}, status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(["PUT"])
 def update_profile(request):
-    print(request.current_user)
     if request.current_user is None:
         return Response({"message": "User Not Found", "success": False}, status=status.HTTP_401_UNAUTHORIZED)
     user_id = request.current_user.get('id')
@@ -181,6 +172,9 @@ def update_profile(request):
         name = request.data.get('name', user.name)
         phone = request.data.get('phone', user.phone)
         email = request.data.get('email', user.email)
+        goal = request.data.get('goal', user.goal)
+        if(goal > 100):
+            user.goal = goal
         user.name = name
         user.phone = phone
         user.email = email

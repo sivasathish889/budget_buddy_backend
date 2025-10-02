@@ -5,7 +5,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ['name','email','phone','DOB','goal']
 
 class ExpenseAdmin(admin.ModelAdmin):
-    list_display = ['user','amount','description','category','date',]
+    list_display = ['id','user','amount','description','category','date',]
 
 class CatagoryAdmin(admin.ModelAdmin):
     list_display = ['name']
