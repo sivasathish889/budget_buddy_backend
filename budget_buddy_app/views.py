@@ -20,6 +20,7 @@ def home(request):
 @api_view(["POST"])   
 def register(request):
     try:
+        print(request.data)
         name = request.data["name"]
         email = request.data["email"]
         phone = request.data["phone"]
