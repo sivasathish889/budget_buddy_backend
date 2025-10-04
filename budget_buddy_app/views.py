@@ -255,3 +255,13 @@ def delete_account(request):
     except Exception as e:
         print(e)
         return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(["DELETE"])
+def delete_expense(request, id):
+    try:
+        expense = Expense.objects.get(id = id)
+        expense.delete()
+        return Response({"message":"Expense Deleted Successfully", "success" : True}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({"message":"Something went wrong", "success" : False}, status=status.HTTP_400_BAD_REQUEST)

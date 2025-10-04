@@ -13,5 +13,6 @@ urlpatterns = [
     path("update-profile", update_profile, name="edit profile"),
     path("change_password", change_password, name="change password"),
     path("user/send-otp", send_otp, name="send otp"),
-    path("verifyPassword/<str:password>", verifyPassword, name="verify password")
+    path("verifyPassword/<str:password>", verifyPassword, name="verify password"),
+    path("delete_expense/<str:id>", delete_expense, name="delete expense")
 ]
