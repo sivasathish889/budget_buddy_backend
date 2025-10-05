@@ -16,11 +16,27 @@ import datetime
 def home(request):
     return Response({"age" : "hello world"})
 
+@api_view(["GEt"])
+def register_verify(request,email):
+    try:
+        if Users.objects.filter(email=email).exists():
+            return Response({"message":"Email already exists", "success" : False}, status=status.HTTP_400_BAD_REQUEST)
+        otp = math.floor(random.randint(1000,9999))
+        send_mail(
+        subject='Regsiter Otp verify',
+        message = f"Your OTP is {otp}",
+        from_email='rdxsathish96@gmail.com',
+        recipient_list=[email],
+        fail_silently=False,
+        )
+        return Response({"message":"Email is available", "success" : True,"otp" :str(otp)}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({"message":"Something went wrong", "success" : False}, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(["POST"])   
 def register(request):
     try:
-        print(request.data)
         name = request.data["name"]
         email = request.data["email"]
         phone = request.data["phone"]
@@ -41,6 +57,7 @@ def register(request):
         print(e)
         return Response({"message":"Something went wrong", "success" : False},status=status.HTTP_400_BAD_REQUEST)
     
+
 
 @api_view(["GET"])
 def get_user(request):
