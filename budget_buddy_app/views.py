@@ -16,8 +16,9 @@ import datetime
 def home(request):
     return Response({"age" : "hello world"})
 
-@api_view(["GEt"])
-def register_verify(request,email):
+@api_view(["GET"])
+def register_verify(request):
+    email = request.GET.get('email')
     try:
         if Users.objects.filter(email=email).exists():
             return Response({"message":"Email already exists", "success" : False}, status=status.HTTP_400_BAD_REQUEST)
@@ -31,7 +32,7 @@ def register_verify(request,email):
         )
         return Response({"message":"Email is available", "success" : True,"otp" :str(otp)}, status=status.HTTP_200_OK)
     except Exception as e:
-        print(e)
+        print("error",e)
         return Response({"message":"Something went wrong", "success" : False}, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(["POST"])   
