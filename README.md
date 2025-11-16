@@ -75,29 +75,6 @@ budget_buddy_backend/
 ### Social
 - Social authentication support
 
-## API Endpoints
-
-### Authentication
-- `GET /register_verify` - Email verification for registration
-- `POST /register` - User registration
-- `GET /login` - User login
-- `GET /forget_password/<email>` - Password reset request
-- `POST /reset_password` - Password reset confirmation
-
-### User Management
-- `GET /get_user_data/` - Get current user profile
-- `PUT /update-profile` - Update user profile
-- `PUT /change_password` - Change user password
-- `GET /verifyPassword/<password>` - Verify current password
-- `DELETE /delete_account` - Delete user account
-- `POST /user/send-otp` - Send OTP for verification
-
-### Expense Management
-- `POST /add_expense` - Add new expense
-- `GET /get_recentUse_byId` - Get recent expenses (last 2 months)
-- `DELETE /delete_expense/<id>` - Delete specific expense
-- `GET /get_category` - Get all expense categories
-
 ## Installation
 
 1. **Clone the repository**
