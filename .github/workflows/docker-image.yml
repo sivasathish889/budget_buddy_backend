@@ -1,0 +1,24 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Build the Docker image
+      run: docker-compose --env-file .env up -d --build
+    - name: Add the tag
+      run: docker tag budget_buddy_backend shiva889/budget_buddy_backend
+    - name: push the docker hub
+      run: docker push shiva889/budget_buddy_backend
+    - name: trigger render deploy
+      run: |
+        curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
