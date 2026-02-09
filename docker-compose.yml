@@ -2,6 +2,7 @@
 services:
   web:
     build: ./
+    image : budget_buddy_backend
     container_name: budget_buddy_backend
     ports:
       - "8000:8000"

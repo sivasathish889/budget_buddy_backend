@@ -1,0 +1,3 @@
+docker-compose --env-file .env up -d --build
+docker tag budget_buddy_backend shiva889/budget_buddy_backend
+docker push shiva889/budget_buddy_backend
