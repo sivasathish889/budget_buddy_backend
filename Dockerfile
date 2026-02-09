@@ -14,9 +14,9 @@ RUN pip install -r requirements.txt
  
 COPY . /app/
 
-RUN python manage.py makemigrations
+RUN python /app/budget_buddy_backend/manage.py makemigrations
 
-RUN python manage.py migrate
+RUN python /app/budget_buddy_backend/manage.py migrate
  
 EXPOSE 8000
 
