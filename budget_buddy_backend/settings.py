@@ -31,11 +31,11 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["budget-buddy-backend-zldn.onrender.com"]
+
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://budget-buddy-backend-1.onrender.com",
-    # "https://your-frontend-domain.com",   # if you have a frontend hosted elsewhere
+    "https://budget-buddy-backend-zldn.onrender.com",
 ]
 
 # Application definition
