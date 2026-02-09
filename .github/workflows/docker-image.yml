@@ -1,24 +1,29 @@
-name: Docker Image CI
+name: Docker CI/CD
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
-
-  build:
-
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Build the Docker image
-      run: docker-compose --env-file .env up -d --build
-    - name: Add the tag
-      run: docker tag budget_buddy_backend shiva889/budget_buddy_backend
-    - name: push the docker hub
-      run: docker push shiva889/budget_buddy_backend
-    - name: trigger render deploy
-      run: |
-        curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: shiva889/budget_buddy_backend:latest
+
+      - name: Trigger Render Deploy
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
