@@ -99,8 +99,7 @@ DATABASES = {
         'PORT' : os.getenv('DATABASE_PORT'),
         'OPTIONS': {
             'ssl': {
-                # 'ca': os.getenv('CE_CERT'),    
-                'ca': "/app/certs/ca.pem",    
+                'ca': os.path.join(BASE_DIR, 'ca.pem'),
             },
         },
     }
