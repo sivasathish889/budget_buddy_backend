@@ -16,9 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from budget_buddy_app import urls
+    
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("api/", include(urls)),
+    path("api/", include("budget_buddy_app.urls")),
 ]

@@ -29,14 +29,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["budget-buddy-backend-zldn.onrender.com"]
+ALLOWED_HOSTS = ["*"]
 
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://budget-buddy-backend-zldn.onrender.com",
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     "http://localhost:8000",
+#     "http://[IP_ADDRESS]",
+#     "*",
+# ]
 
 # Application definition
 
