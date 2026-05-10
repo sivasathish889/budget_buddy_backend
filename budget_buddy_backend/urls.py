@@ -15,8 +15,23 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
-    
+from django.urls import path, include
+from django.http import JsonResponse
+
+def custom_404(request, exception):
+    return JsonResponse({
+        "success": False,
+        "message": "Endpoint not found"
+    }, status=404)
+
+def custom_500(request):
+    return JsonResponse({
+        "success": False,
+        "message": "Internal Server Error"
+    }, status=500)
+
+handler404 = custom_404
+handler500 = custom_500
 
 urlpatterns = [
     path('admin/', admin.site.urls),
